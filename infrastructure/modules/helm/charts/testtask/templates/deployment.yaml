@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.metadata.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.pod }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.pod }}
+    spec:
+      serviceAccountName: secret-manager-service-account
+      containers:
+      - name: {{ .Values.container.name }}
+        command: [ "npm", "run", "start:dev" ]
+        image:  {{ .Values.container.image }}
+        ports:
+        - containerPort: {{ .Values.container.port }}
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configmap.metadata.name }}
+              key: NODE_ENV
+        - name: CONTENTFUL_DELIVERY_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configmap.metadata.name }}
+              key: CONTENTFUL_DELIVERY_API_HOST
+        - name: CONTENTFUL_PREVIEW_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configmap.metadata.name }}
+              key: CONTENTFUL_PREVIEW_API_HOST
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.configmap.metadata.name }}
+              key: PORT
+        - name: CONTENTFUL_SPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretObjects.secretName }}
+              key: CONTENTFUL_SPACE_ID
+        - name: CONTENTFUL_DELIVERY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretObjects.secretName }}
+              key: CONTENTFUL_DELIVERY_TOKEN
+        - name: CONTENTFUL_PREVIEW_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretObjects.secretName }}
+              key: CONTENTFUL_PREVIEW_TOKEN
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "secrets-provider"

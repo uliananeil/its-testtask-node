@@ -5,3 +5,7 @@ output "aws_load_balancer_controller_role_arn" {
 output "aws_secret_manager_role_arn" {
   value = aws_iam_role.aws_secret_manager_role.arn
 }
+
+output "efs_csi_controller_arn" {
+  value = aws_iam_role.efs-csi-controller.arn
+}

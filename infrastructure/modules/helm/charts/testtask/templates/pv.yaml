@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistentVolume.metadata.name}}
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.storageClass.metadata.name }}
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{ .Values.csi.volumeHandle }}

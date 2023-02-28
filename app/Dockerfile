@@ -1,15 +1,7 @@
 FROM node:19-alpine3.16
 
 WORKDIR /app
-
-RUN npm install -g contentful-cli
-
-COPY package.json .
-RUN npm install
-
 COPY . .
-
-USER node
+RUN npm install
 EXPOSE 3000
-
 CMD ["npm", "run", "start:dev"]

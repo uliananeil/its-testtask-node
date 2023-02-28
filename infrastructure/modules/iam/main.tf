@@ -62,10 +62,9 @@ data "aws_iam_policy_document" "aws_secret_manager_assume_role_policy" {
   }
 }
 
-
 resource "aws_iam_role" "aws_secret_manager_role" {
   assume_role_policy = data.aws_iam_policy_document.aws_secret_manager_assume_role_policy.json
-  name               = var.secret_manager_role_name
+  name               = "secret-manager-controler"
 }
 
 resource "aws_iam_policy" "aws_secret_manager_policy" {
@@ -76,4 +75,33 @@ resource "aws_iam_policy" "aws_secret_manager_policy" {
 resource "aws_iam_role_policy_attachment" "aws_secret_manager_attach" {
   role       = aws_iam_role.aws_secret_manager_role.name
   policy_arn = aws_iam_policy.aws_secret_manager_policy.arn
+}
+
+//---- Amazon EFS CSI driver
+data "aws_iam_policy_document" "efs-csi-controller_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:efs-csi-controller-sa"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "efs-csi-controller" {
+  assume_role_policy = data.aws_iam_policy_document.efs-csi-controller_assume_role_policy.json
+  name               = "efs-csi-controller"
+}
+
+resource "aws_iam_policy" "efs-csi-controller" {
+  policy = file("./EFS_CSI_Driver_Policy.json")
+  name   = "EFS_CSI_Driver"
 }

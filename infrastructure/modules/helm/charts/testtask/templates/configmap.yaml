@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configmap.metadata.name}}
+data:
+  NODE_ENV: {{ .Values.data.NODE_ENV }}
+  CONTENTFUL_DELIVERY_API_HOST: {{ .Values.data.CONTENTFUL_DELIVERY_API_HOST }}
+  CONTENTFUL_PREVIEW_API_HOST: {{ .Values.data.CONTENTFUL_PREVIEW_API_HOST }}
+  PORT: {{ .Values.data.PORT }}

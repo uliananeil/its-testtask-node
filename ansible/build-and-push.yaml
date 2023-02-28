@@ -1,0 +1,25 @@
+---
+  - name: Build and push to ECR
+    hosts: all
+    tasks:
+      - name: Login into ECR
+        shell: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/a5a9t4e9
+      - name: Build an image and push it to a repo
+        docker_image:
+          build:
+            path: ../app
+          name: testtask
+          tag: latest
+          source: build
+      - name: Add tag latest to image
+        docker_image:
+          name: testtask:latest
+          repository: public.ecr.aws/a5a9t4e9/testtask:latest
+          force_tag: true
+          source: local
+      - name: Push latest to repo
+        docker_image:
+          name: public.ecr.aws/a5a9t4e9/testtask:latest
+          push: true
+          source: local

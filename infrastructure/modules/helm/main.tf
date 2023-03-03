@@ -41,10 +41,10 @@ resource "helm_release" "efs-csi-driver" {
     name  = "clusterName"
     value = var.cluster_name
   }
-  set {
-    name  = "image.repository"
-    value = "602401143452.dkr.ecr.us-east-1.amazonaws.com"
-  }
+ // set {
+  //  name  = "image.repository"
+ //   value = "602401143452.dkr.ecr.us-east-1.amazonaws.com"
+ // }
   set {
     name  = "serviceAccount.name"
     value = "efs-csi-controller-sa"
@@ -62,14 +62,9 @@ resource "helm_release" "secrets_store_csi_driver_chart" {
   namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
   chart      = "secrets-store-csi-driver"
-
   set {
-    name  = "serviceAccount.name"
-    value = "secret-manager-sa"
-  }
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = var.aws_secret_manager_role_arn
+    name  = "syncSecret.enabled"
+    value = true
   }
 }
 
@@ -92,8 +87,27 @@ resource "helm_release" "testtask" {
     value = var.file_system_id
   }
 
+  set {
+    name  = "serviceAccountsRoles.secretManagerArn"
+    value = var.aws_secret_manager_role_arn
+  }
+
   depends_on = [
     helm_release.aws-load-balancer-controller,
     helm_release.efs-csi-driver
   ]
+}
+
+resource "helm_release" "fluent-bit" {
+  name = "fluent-bit"
+  repository = "./charts"
+  chart      = "fluent-bit"
+  set {
+    name  = "data.host"
+    value = var.domain_name_endpoint
+  }
+  set {
+    name = "serviceAccountsRoles.fluent_bit_arn"
+    value = var.fluent_bit_arn
+  }
 }

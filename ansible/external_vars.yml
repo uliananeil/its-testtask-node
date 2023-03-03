@@ -1,0 +1,5 @@
+image: "testtask"
+tag: 1
+repo: "public.ecr.aws/a5a9t4e9"
+cluster: "testtask-cluster"
+region: "us-east-1"

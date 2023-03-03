@@ -1,0 +1,11 @@
+serviceAccount:
+  name: fluent-bit
+
+namespace:
+  name: logging
+
+data:
+  host: openserachdomain
+  region: us-east-1
+serviceAccountsRoles:
+  fluent_bit_arn: arn

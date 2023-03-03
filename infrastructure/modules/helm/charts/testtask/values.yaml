@@ -2,15 +2,17 @@ configmap:
   metadata:
     name: testtask-env
 data:
-  NODE_ENV: development
-  CONTENTFUL_DELIVERY_API_HOST: cdn.contentful.com
-  CONTENTFUL_PREVIEW_API_HOST: preview.contentful.com
+  NODE_ENV: "development"
+  CONTENTFUL_DELIVERY_API_HOST: "cdn.contentful.com"
+  CONTENTFUL_PREVIEW_API_HOST: "preview.contentful.com"
   PORT: 3000
+
 secretObjects:
-  secretName: testtask-secret
+  secretName: "contenful"
 parameters:
   region: us-east-1
-  objectName: arn:aws:secretsmanager:us-east-1:841962000336:secret:Contenful-jx3BTb
+  objectName: arn:aws:secretsmanager:us-east-1:841962000336:secret:contentful-eVTxaO
+
 storageClass:
   metadata:
     name: efs-sc
@@ -19,17 +21,15 @@ persistentVolume:
     name: efs-pv
 csi:
   volumeHandle: fs-weu32
-persistentVolumeClaim:
-  metadata: 
-    name: efs-claim
+persistentVolumeClaim: efs-claim
 deployment:
   metadata:
     name: testtask-deployment
-  replicas: 2
+  replicas: 3
   pod: testtask
 container:
   name: testtask
-  image:
+  image: public.ecr.aws/a5a9t4e9/testtask
   port: 3000
 service:
   metadata:
@@ -40,4 +40,8 @@ ingress:
   metadata:
     name: testtask
 host: testtask-node.anyname.site
-certificate-arn: arn:aws:acm:us-east-1:841962000336:certificate/a86948ba-09c5-4689-84b4-494839de7869
+certificate_arn: arn:aws:acm:us-east-1:841962000336:certificate/a86948ba-09c5-4689-84b4-494839de7869
+serviceAccountsRoles:
+  secretManagerArn: arn2132
+serviceAccount:
+  name: secret-manager-service-account

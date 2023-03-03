@@ -23,41 +23,43 @@ spec:
         - name: secrets-store-inline
           mountPath: "/mnt/secrets-store"
           readOnly: true
+        - name: persistent-storage
+          mountPath: /data
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
               name: {{ .Values.configmap.metadata.name }}
-              key: NODE_ENV
+              key: node_env
         - name: CONTENTFUL_DELIVERY_API_HOST
           valueFrom:
             configMapKeyRef:
               name: {{ .Values.configmap.metadata.name }}
-              key: CONTENTFUL_DELIVERY_API_HOST
+              key: contenful_delivery_api_host
         - name: CONTENTFUL_PREVIEW_API_HOST
           valueFrom:
             configMapKeyRef:
               name: {{ .Values.configmap.metadata.name }}
-              key: CONTENTFUL_PREVIEW_API_HOST
+              key: contenful_preview_api_host
         - name: PORT
           valueFrom:
             configMapKeyRef:
               name: {{ .Values.configmap.metadata.name }}
-              key: PORT
+              key: port
         - name: CONTENTFUL_SPACE_ID
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secretObjects.secretName }}
+              name: {{ .Values.secretObjects.secretName | quote }}
               key: CONTENTFUL_SPACE_ID
         - name: CONTENTFUL_DELIVERY_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secretObjects.secretName }}
+              name: {{ .Values.secretObjects.secretName | quote }}
               key: CONTENTFUL_DELIVERY_TOKEN
         - name: CONTENTFUL_PREVIEW_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secretObjects.secretName }}
+              name: {{ .Values.secretObjects.secretName | quote }}
               key: CONTENTFUL_PREVIEW_TOKEN
       volumes:
       - name: secrets-store-inline
@@ -65,4 +67,7 @@ spec:
           driver: secrets-store.csi.k8s.io
           readOnly: true
           volumeAttributes:
-            secretProviderClass: "secrets-provider"
+            secretProviderClass: secrets-provider
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistentVolumeClaim }}

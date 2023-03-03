@@ -3,9 +3,9 @@ resource "aws_efs_file_system" "efs" {
 }
 
 resource "aws_efs_mount_target" "mount_target" {
-  for_each = var.private_subnets_ids
+  count          = length(var.private_subnets_ids)
   file_system_id  = aws_efs_file_system.efs.id
-  subnet_id       = each.value
+  subnet_id       = element(var.private_subnets_ids[*], count.index)
   security_groups = [aws_security_group.allow_nfs_inbound.id]
 }
 
@@ -19,6 +19,6 @@ resource "aws_security_group" "allow_nfs_inbound" {
     from_port   = var.from_port
     to_port     = var.to_port
     protocol    = "tcp"
-    cidr_blocks = var.vpc_range
+    cidr_blocks = [var.vpc_range]
   }
 }
